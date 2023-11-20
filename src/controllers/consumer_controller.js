@@ -15,14 +15,17 @@ const signup = async (req, res) => {
 
   try {
     const inserted_consumer = await Consumer.create(signup_object);
-    console.log("Consumer created:", inserted_consumer);
+    console.log("Consumer created:", inserted_consumer.dataValues);
+    console.log("==================")
+
     return res.status(200).json({
       msg: "Successful insertion:",
       inserted: inserted_consumer.toJSON(),
     });
   } catch (error) {
-    console.error("Error creating consumer:", error.message);
-    return res.status(500).json({ error: error });
+    console.error("Error creating consumer:", error.errors);
+    //send only relevant erros msg
+    return res.status(500).json({ error: error.errors });
   }
 };
 
@@ -47,7 +50,9 @@ const login = async (req, res) => {
 
     const token = jwt.sign({email : consumer.email}, process.env.SECRET);
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token, { httpOnly: true,  sameSite: 'None', domain: 'localhost:8080', path: '/' });
+    console.log("==================")
+
     return res.status(200).send("successful login ");
   } catch (error) {
     //db error

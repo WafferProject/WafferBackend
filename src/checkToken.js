@@ -18,12 +18,13 @@ const checkJwtToken = function (req, res, next) {
   if (jwttoken) {
     jwt.verify(jwttoken, process.env.SECRET, (err, decoded) => {
       if (err) {
-        console.error("JWT verification error:", err);
+        console.log("JWT verification error:", err);
         return res.status(401).json({ error: "Invalid token" });
       }
 
       // If token is validated and the request is for login or signup, redirect to the home page
       if (isLoginOrSignup) {
+        console.log("valid token redicrect ")
         return res
           .status(303)
           .json({msg: "JWT token validated, redirect to the home page", payload: decoded.email});

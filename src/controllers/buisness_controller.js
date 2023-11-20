@@ -18,7 +18,9 @@ const signup = async (req, res) => {
 
   try {
     const inserted_buisness = await Buisness.create(signup_object);
-    console.log("Buinsess created:");
+    console.log("Buinsess created:" + inserted_buisness.toJSON());
+    console.log("==================")
+
     return res.status(200).json({
       msg: "Successful insertion:",
       inserted: inserted_buisness.toJSON(),
@@ -38,6 +40,9 @@ const login = async (req, res) => {
     const buisness = await Buisness.findByPk(tax_registration_number);
 
     if (!buisness || buisness.password !== password) {
+      console.log("wrong ps")
+      console.log("==================")
+
       return res.status(401).send("wrong identifier or password");
     }
     // buisness authenticated , generate jwt
@@ -48,10 +53,12 @@ const login = async (req, res) => {
       process.env.SECRET
     );
     res.cookie("token", token, { httpOnly: true });
+    console.log("==================")
     return res.status(200).send("successful login ");
   } catch (error) {
     //db error
     return res.status(500).json({ error: error  });
+    
   }
 };
 
