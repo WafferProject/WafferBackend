@@ -1,9 +1,10 @@
 // Import Sequelize library and connection
 
-const { sequelize , DataTypes } = require("../config/db_config");
+const { sequelize, DataTypes } = require("../config/db_config");
+const {PlaceOrder} = require("./PlaceOrder");
 
 // Define the Consumer model
-sequelize
+sequelize;
 const Consumer = sequelize.define(
   "Consumer",
   {
@@ -39,12 +40,14 @@ const Consumer = sequelize.define(
     timestamps: false,
   }
 );
+Consumer.hasMany(PlaceOrder);
+PlaceOrder.belongsTo(Consumer, {
+  foreignKey: "consumer_email",
+  onDelete: "CASCADE",
+  onUpdate: "NO ACTION",
+});
 
-sequelize.sync().then(()=>{
-  console.log("sync with consumer success ");
-})
-.catch(err=>{
-  console.log(err);
-})
+
+
 // Export the Consumer model
-module.exports = {Consumer};
+module.exports =  {Consumer} ;

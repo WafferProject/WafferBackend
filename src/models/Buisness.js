@@ -1,4 +1,6 @@
 const { sequelize, DataTypes } = require("../config/db_config");
+const { Offer } = require("./Offer");
+const { WorkPhone } = require("./WorkPhone");
 
 const Buisness = sequelize.define(
   "Buisness",
@@ -14,7 +16,7 @@ const Buisness = sequelize.define(
       unique: true,
     },
     location: {
-      type: DataTypes.GEOMETRY('POINT'),
+      type: DataTypes.GEOMETRY("POINT"),
       allowNull: false,
     },
     name: {
@@ -45,11 +47,22 @@ const Buisness = sequelize.define(
   }
 );
 
-sequelize.sync().then(()=>{
-    console.log("sync with buisness success ");
-  })
-  .catch(err=>{
-    console.log(err);
-  })
+// Buisness offer association 
+Buisness.hasMany(Offer);
+Offer.belongsTo(Buisness, {
+  foreignKey: "tax_registration_number",
+  onDelete: "CASCADE",
+  onUpdate: "NO ACTION",
+});
 
-module.exports = {Buisness};
+// buisness phone association
+Buisness.hasMany(WorkPhone);
+WorkPhone.belongsTo(Buisness, {
+  foreignKey: "tax_registration_number",
+  onDelete: "CASCADE",
+  onUpdate: "NO ACTION",
+});
+
+
+
+module.exports = { Buisness };
