@@ -50,7 +50,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign({email : consumer.email}, process.env.SECRET);
 
-    res.cookie("token", token, { httpOnly: true,  sameSite: 'None', domain: 'localhost:8080', path: '/' });
+    res.cookie("token", token, { httpOnly: true });
     console.log("==================")
 
     return res.status(200).send("successful login ");

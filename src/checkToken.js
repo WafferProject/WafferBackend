@@ -32,7 +32,7 @@ const checkJwtToken = function (req, res, next) {
 
       // If the token is validated, attach information to the request object for next processing
       req.body.email = decoded.email;
-      console.log("Valid token: " + decoded);
+      console.log("Valid token: " + JSON.stringify(decoded));
      return  next(); // All good, call the next handler
     });
   } else {
