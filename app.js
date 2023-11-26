@@ -26,7 +26,7 @@ app.use(checkJwtToken);
 app.use("/api/consumer/", consumer_router);
 app.use("/api/buisness", buisness_router);
 
-app.all("/", (req, res) => {
+app.all("/api", (req, res) => {
   res.send("hello , homepage");
 });
 

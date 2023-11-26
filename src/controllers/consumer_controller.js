@@ -20,7 +20,7 @@ const signup = async (req, res) => {
 
     return res.status(200).json({
       msg: "Successful insertion:",
-      inserted: inserted_consumer.toJSON(),
+      result: inserted_consumer.toJSON(),
     });
   } catch (error) {
     console.error("Error creating consumer:", error.errors);

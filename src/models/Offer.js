@@ -14,11 +14,6 @@ const Offer = sequelize.define(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    tax_registration_number: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     new_price: {
       type: DataTypes.FLOAT,
       allowNull: false,

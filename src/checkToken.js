@@ -6,8 +6,6 @@ const checkJwtToken = function (req, res, next) {
   //regular expression to check if path is towards login/signup
   const isLoginOrSignup = /\/(login|signup)$/i.test(req.path);
 
-
-
   // If there's no token and the request is for login or signup, let it pass
   if (!jwttoken && isLoginOrSignup) {
     console.log("Passed for login or signup");
@@ -24,16 +22,25 @@ const checkJwtToken = function (req, res, next) {
 
       // If token is validated and the request is for login or signup, redirect to the home page
       if (isLoginOrSignup) {
-        console.log("valid token redicrect ")
-        return res
-          .status(303)
-          .json({msg: "JWT token validated, redirect to the home page", payload: decoded.email});
+        console.log("valid token redicrect ");
+        return res.status(303).json({
+          msg: "JWT token validated, redirect to the home page",
+          // to handle both buisness and consumer
+          payload: decoded.email || decoded.tax_registration_number
+        });
       }
-
+      console.log("Valid token: ");
       // If the token is validated, attach information to the request object for next processing
-      req.body.email = decoded.email;
-      console.log("Valid token: " + JSON.stringify(decoded));
-     return  next(); // All good, call the next handler
+      //for consumer 
+      if (decoded.email) {
+        req.body.email = decoded.email;
+        console.log(JSON.stringify(req.body.email));
+        //for buisness
+      } else if (decoded.tax_registration_number) {
+        req.body.tax_registration_number = decoded.tax_registration_number;
+        console.log(JSON.stringify(req.body.tax_registration_number));
+      }
+      return next(); // All good, call the next handler
     });
   } else {
     // If the user has no token and is requesting anything other than login/signup, interrupt
@@ -43,4 +50,4 @@ const checkJwtToken = function (req, res, next) {
   }
 };
 
-module.exports = {checkJwtToken};
+module.exports = { checkJwtToken };

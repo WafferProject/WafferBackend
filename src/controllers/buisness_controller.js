@@ -59,23 +59,26 @@ const login = async (req, res) => {
     return res.status(200).send("successful login ");
   } catch (error) {
     //db error
+    console.log(error);
+
     return res.status(500).json({ error: error });
   }
 };
 
 const addOffer = async (req, res) => {
+  //destructure offer data from request body
   const {
     old_price,
-    tax_registration_number,
     new_price,
     category,
     quantity,
     description,
+    tax_registration_number
   } = req.body;
 
   const new_offer = {
     old_price,
-    tax_registration_number,
+    BuisnessTaxRegistrationNumber: tax_registration_number,
     new_price,
     category,
     quantity,
@@ -83,14 +86,76 @@ const addOffer = async (req, res) => {
   };
   try {
     const inserted_offer = await Offer.create(new_offer);
-    console.log("offer created successfully" );
+    console.log("offer created successfully");
     console.log("==================");
-    return res.status(200).json({ msg: "offer inserted successfully", inserted:inserted_offer.toJSON()});
+  
+    return res.status(200).json({
+      msg: "offer inserted successfully",
+      result: inserted_offer.toJSON(),
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error });
+  }
+};
 
+const getPostedOffers = async (req, res) => {
+  const { tax_registration_number } = req.body;
+  try {
+    const posted_offers = await Offer.findAll({
+      where: {
+        BuisnessTaxRegistrationNumber: tax_registration_number, // Specify the buisness that posted the offer
+        status: 1,
+      },
+    });
+    console.log("return posted offers ");
+    console.log("==================");
+
+    return res.status(200).json({ result: posted_offers });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ error });
+  }
+};
+
+const deleteOffer = async (req, res) => {
+  const { tax_registration_number } = req.body;
+  try {
+    //search for offer
+    const offerToDelete = await Offer.findOne({
+      where: { offer_id: req.params.o },
+    });
+    // no offer match 
+    if (!offerToDelete) {
+      console.log("no matched offer");
+      console.log("==================");
+
+      return res
+        .status(404)
+        .json({ msg: "requested offer doesnt exist or already deleted " });
+    }
+    //if offer exist  and doesnt belong to the user 
+    if (
+      offerToDelete.BuisnessTaxRegistrationNumber!==
+      tax_registration_number
+    ) {
+      console.log("offer does not belong");
+      console.log("==================");
+
+      return res.status(403).json({ msg: "forbidden resource access" });
+    }
+    //all verified , delete the offer
+    await offerToDelete.destroy();
+    console.log("offer deleted");
+    console.log("==================");
+
+    return res.status(200).json({ msg: "offer deleted successfully" });
   } catch (err) {
     console.log(err);
+
     return res.status(500).json({ err });
   }
 };
 
-module.exports = { signup, login , addOffer};
+module.exports = { signup, login, addOffer, getPostedOffers, deleteOffer };
