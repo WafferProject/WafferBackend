@@ -47,20 +47,20 @@ const Buisness = sequelize.define(
   }
 );
 
-// Buisness offer association 
-Buisness.hasMany(Offer,{
-});
-Offer.belongsTo(Buisness, {
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
+// // Buisness offer association 
+// Buisness.hasMany(Offer,{
+// });
+// Offer.belongsTo(Buisness, {
+//   onDelete: "CASCADE",
+//   onUpdate: "NO ACTION",
+// });
 
-// buisness phone association
-Buisness.hasMany(WorkPhone);
-WorkPhone.belongsTo(Buisness, {
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
+// // buisness phone association
+// Buisness.hasMany(WorkPhone);
+// WorkPhone.belongsTo(Buisness, {
+//   onDelete: "CASCADE",
+//   onUpdate: "NO ACTION",
+// });
 
 
 

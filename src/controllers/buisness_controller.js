@@ -1,6 +1,7 @@
 const { Buisness } = require("../models/Buisness");
 const { Offer } = require("../models/Offer");
 const jwt = require("jsonwebtoken");
+const { WorkPhone } = require("../models/WorkPhone");
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -20,16 +21,23 @@ const signup = async (req, res) => {
 
   try {
     const inserted_buisness = await Buisness.create(signup_object);
-    console.log("Buinsess created:" + inserted_buisness.toJSON());
+    phonesToObjs =  req.body.work_phones.map((phone) => ({
+      BuisnessTaxRegistrationNumber: req.body.tax_registration_number,
+      phone_number: phone,
+    }));
+    console.log(phonesToObjs);
+    const work_phones = await WorkPhone.bulkCreate(phonesToObjs);
+
+    console.log("Buinsess created:" +JSON.stringify(inserted_buisness) + "  " + JSON.stringify(work_phones));
     console.log("==================");
 
     return res.status(200).json({
-      msg: "Successful insertion:",
-      inserted: inserted_buisness.toJSON(),
+      msg: "Successful insertion , redirect to home ",
+      inserted: { inserted_buisness, work_phones },
     });
   } catch (error) {
     console.error("Error creating Buisness:", error);
-    return res.status(500).json({ error: error });
+    return res.status(500).json(error);
   }
 };
 
@@ -73,12 +81,12 @@ const addOffer = async (req, res) => {
     category,
     quantity,
     description,
-    tax_registration_number
+    tax_registration_number,
   } = req.body;
 
   const new_offer = {
     old_price,
-    BuisnessTaxRegistrationNumber: tax_registration_number,
+    tax_registration_number: tax_registration_number,
     new_price,
     category,
     quantity,
@@ -88,7 +96,7 @@ const addOffer = async (req, res) => {
     const inserted_offer = await Offer.create(new_offer);
     console.log("offer created successfully");
     console.log("==================");
-  
+
     return res.status(200).json({
       msg: "offer inserted successfully",
       result: inserted_offer.toJSON(),
@@ -104,7 +112,7 @@ const getPostedOffers = async (req, res) => {
   try {
     const posted_offers = await Offer.findAll({
       where: {
-        BuisnessTaxRegistrationNumber: tax_registration_number, // Specify the buisness that posted the offer
+        tax_registration_number: tax_registration_number, // Specify the buisness that posted the offer
         status: 1,
       },
     });
@@ -124,9 +132,9 @@ const deleteOffer = async (req, res) => {
   try {
     //search for offer
     const offerToDelete = await Offer.findOne({
-      where: { offer_id: req.params.o },
+      where: { id: req.params.o },
     });
-    // no offer match 
+    // no offer match
     if (!offerToDelete) {
       console.log("no matched offer");
       console.log("==================");
@@ -135,10 +143,9 @@ const deleteOffer = async (req, res) => {
         .status(404)
         .json({ msg: "requested offer doesnt exist or already deleted " });
     }
-    //if offer exist  and doesnt belong to the user 
+    //if offer exist  and doesnt belong to the user
     if (
-      offerToDelete.BuisnessTaxRegistrationNumber!==
-      tax_registration_number
+      offerToDelete.tax_registration_number !== tax_registration_number
     ) {
       console.log("offer does not belong");
       console.log("==================");

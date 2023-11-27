@@ -1,5 +1,6 @@
 const { Consumer } = require("../models/Consumer");
 const jwt = require("jsonwebtoken");
+const { PlaceOrder } = require("../models/PlaceOrder");
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -16,11 +17,12 @@ const signup = async (req, res) => {
   try {
     const inserted_consumer = await Consumer.create(signup_object);
     console.log("Consumer created:", inserted_consumer.dataValues);
-    console.log("==================")
+    console.log("==================");
 
     return res.status(200).json({
-      msg: "Successful insertion:",
+      msg: "Successful insertion , redirect to home ",
       result: inserted_consumer.toJSON(),
+      
     });
   } catch (error) {
     console.error("Error creating consumer:", error.errors);
@@ -28,8 +30,6 @@ const signup = async (req, res) => {
     return res.status(500).json({ error: error.errors });
   }
 };
-
-
 
 const login = async (req, res) => {
   console.log("Received login request");
@@ -48,10 +48,10 @@ const login = async (req, res) => {
     // user authenticated , generate jwt
     console.log(consumer.toJSON());
 
-    const token = jwt.sign({email : consumer.email}, process.env.SECRET);
+    const token = jwt.sign({ email: consumer.email }, process.env.SECRET);
 
     res.cookie("token", token, { httpOnly: true });
-    console.log("==================")
+    console.log("==================");
 
     return res.status(200).send("successful login ");
   } catch (error) {
@@ -60,4 +60,22 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { signup, login };
+const addOrder = async (req, res) => {
+  const new_order = { quantity : req.body.quantity , consumer_email: req.body.email , offer_id: req.body.offer_id , tax_registration_number : req.body.tax_registration_number } 
+  try {
+    const inserted_order = await  PlaceOrder.create(new_order);
+    console.log("order added successfully " +  JSON.stringify(inserted_order));
+    console.log("==================");
+    res
+      .status(200)
+      .json({
+        msg: " order placed successfully",
+        result: inserted_order.toJSON(),
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({error});
+  }
+};
+
+module.exports = { signup, login, addOrder };

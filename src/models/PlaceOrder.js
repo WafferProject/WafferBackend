@@ -1,23 +1,28 @@
 const { sequelize, DataTypes } = require("../config/db_config");
 
-
 const PlaceOrder = sequelize.define(
   "placeOrder",
   {
-    offer_id: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
+      autoIncrement:true,
     },
+    offer_id :{
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "OfferId",
+    } , 
     tax_registration_number: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
+      field: "OfferBuisnessTaxRegistrationNumber",
     },
     consumer_email: {
       type: DataTypes.STRING(45),
       allowNull: false,
-      primaryKey: true,
+      field: "ConsumerEmail",
     },
     quantity: {
       type: DataTypes.STRING(45),
@@ -41,10 +46,6 @@ const PlaceOrder = sequelize.define(
   }
 );
 
-// Define foreign key associations
+// PlaceOrder.removeAttribute("id");
 
-
-
-
-
-module.exports = {PlaceOrder};
+module.exports = { PlaceOrder };

@@ -24,7 +24,7 @@ app.use(cookieParser());
 //every request passes by the check Token to validate authentiation
 app.use(checkJwtToken);
 app.use("/api/consumer/", consumer_router);
-app.use("/api/buisness", buisness_router);
+app.use("/api/buisness/", buisness_router);
 
 app.all("/api", (req, res) => {
   res.send("hello , homepage");

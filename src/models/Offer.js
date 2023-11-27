@@ -4,11 +4,16 @@ const {PlaceOrder} = require("./PlaceOrder");
 const Offer = sequelize.define(
   "Offer",
   {
-    offer_id: {
+    id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       autoIncrement: true,
       primaryKey: true,
+    },
+    tax_registration_number: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      field: "BuisnessTaxRegistrationNumber",
     },
     old_price: {
       type: DataTypes.FLOAT,
@@ -54,18 +59,15 @@ const Offer = sequelize.define(
 
 // Define foreign key association
 
-Offer.hasMany(PlaceOrder);
-PlaceOrder.belongsTo(Offer, {
-  foreignKey: "offer_id",
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
+// Offer.hasMany(PlaceOrder
+// );
 
-PlaceOrder.belongsTo(Offer, {
-  foreignKey: "tax_registration_number",
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
+// PlaceOrder.belongsTo(Offer, {
+//   foreignKeyConstraint:true,
+//   constraints:true,
+//   onDelete: "CASCADE",
+//   onUpdate: "NO ACTION",
+// });
 
 
 

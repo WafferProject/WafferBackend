@@ -40,12 +40,12 @@ const Consumer = sequelize.define(
     timestamps: false,
   }
 );
-Consumer.hasMany(PlaceOrder);
-PlaceOrder.belongsTo(Consumer, {
-  foreignKey: "consumer_email",
-  onDelete: "CASCADE",
-  onUpdate: "NO ACTION",
-});
+// Consumer.hasMany(PlaceOrder);
+// PlaceOrder.belongsTo(Consumer, {
+//   foreignKeyConstraint:true,
+//   onDelete: "CASCADE",
+//   onUpdate: "NO ACTION",
+// });
 
 
 
