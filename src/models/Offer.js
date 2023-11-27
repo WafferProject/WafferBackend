@@ -1,5 +1,4 @@
 const { sequelize, DataTypes } = require("../config/db_config");
-const {PlaceOrder} = require("./PlaceOrder");
 
 const Offer = sequelize.define(
   "Offer",

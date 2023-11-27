@@ -2,6 +2,7 @@ const { Buisness } = require("../models/Buisness");
 const { Offer } = require("../models/Offer");
 const jwt = require("jsonwebtoken");
 const { WorkPhone } = require("../models/WorkPhone");
+const { PlaceOrder } = require("../models/PlaceOrder");
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -21,14 +22,19 @@ const signup = async (req, res) => {
 
   try {
     const inserted_buisness = await Buisness.create(signup_object);
-    phonesToObjs =  req.body.work_phones.map((phone) => ({
+    phonesToObjs = req.body.work_phones.map((phone) => ({
       BuisnessTaxRegistrationNumber: req.body.tax_registration_number,
       phone_number: phone,
     }));
     console.log(phonesToObjs);
     const work_phones = await WorkPhone.bulkCreate(phonesToObjs);
 
-    console.log("Buinsess created:" +JSON.stringify(inserted_buisness) + "  " + JSON.stringify(work_phones));
+    console.log(
+      "Buinsess created:" +
+        JSON.stringify(inserted_buisness) +
+        "  " +
+        JSON.stringify(work_phones)
+    );
     console.log("==================");
 
     return res.status(200).json({
@@ -73,6 +79,27 @@ const login = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  const { tax_registration_number } = req.body;
+  try {
+    const updated_buisness = await Buisness.update(req.body, {
+      //force frontend to exclude update of trn ,email
+      where: { tax_registration_number: tax_registration_number },
+    });
+    console.log(
+      "buisness profile updated successfully " +
+        JSON.stringify(updated_buisness)
+    );
+    console.log("=================");
+   return  res.status(200).json({
+      msg: "buisness profile updated successfully",
+    });
+  } catch (err) {
+    console.log(err);
+   return  res.status(500).json({ err: err });
+  }
+};
+
 const addOffer = async (req, res) => {
   //destructure offer data from request body
   const {
@@ -107,6 +134,40 @@ const addOffer = async (req, res) => {
   }
 };
 
+const updateOffer = async (req, res) => {
+  const { tax_registration_number } = req.body;
+  try {
+    //search for offer
+    const offerToUpdate = await Offer.findOne({
+      where: { id: req.body.offer_id },
+    });
+    // no offer match
+    if (!offerToUpdate) {
+      console.log("no matched offer");
+      console.log("==================");
+
+      return res.status(404).json({ msg: "requested offer doesnt exist " });
+    }
+    //if offer exist  and doesnt belong to the user
+    if (offerToUpdate.tax_registration_number !== tax_registration_number) {
+      console.log("offer does not belong");
+      console.log("==================");
+
+      return res.status(403).json({ msg: "forbidden resource access" });
+    }
+    //all verified , update the offer
+    await offerToUpdate.set(req.body).save();
+    console.log("offer updated");
+    console.log("==================");
+
+    return res.status(200).json({ msg: "offer updated successfully" });
+  } catch (err) {
+    console.log(err);
+
+    return res.status(500).json({ err });
+  }
+};
+
 const getPostedOffers = async (req, res) => {
   const { tax_registration_number } = req.body;
   try {
@@ -115,6 +176,7 @@ const getPostedOffers = async (req, res) => {
         tax_registration_number: tax_registration_number, // Specify the buisness that posted the offer
         status: 1,
       },
+      include: PlaceOrder, // retrieve the orders related to the offer
     });
     console.log("return posted offers ");
     console.log("==================");
@@ -132,7 +194,7 @@ const deleteOffer = async (req, res) => {
   try {
     //search for offer
     const offerToDelete = await Offer.findOne({
-      where: { id: req.params.o },
+      where: { id: req.body.offer_id },
     });
     // no offer match
     if (!offerToDelete) {
@@ -144,16 +206,14 @@ const deleteOffer = async (req, res) => {
         .json({ msg: "requested offer doesnt exist or already deleted " });
     }
     //if offer exist  and doesnt belong to the user
-    if (
-      offerToDelete.tax_registration_number !== tax_registration_number
-    ) {
+    if (offerToDelete.tax_registration_number !== tax_registration_number) {
       console.log("offer does not belong");
       console.log("==================");
 
       return res.status(403).json({ msg: "forbidden resource access" });
     }
     //all verified , delete the offer
-    await offerToDelete.destroy();
+    await offerToDelete.set({ status: 0 }).save();
     console.log("offer deleted");
     console.log("==================");
 
@@ -165,4 +225,12 @@ const deleteOffer = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, addOffer, getPostedOffers, deleteOffer };
+module.exports = {
+  signup,
+  login,
+  addOffer,
+  getPostedOffers,
+  deleteOffer,
+  updateProfile,
+  updateOffer
+};

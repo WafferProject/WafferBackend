@@ -1,4 +1,5 @@
 const { sequelize, DataTypes } = require("../config/db_config");
+const { Offer } = require("./Offer");
 
 const PlaceOrder = sequelize.define(
   "placeOrder",
@@ -41,11 +42,14 @@ const PlaceOrder = sequelize.define(
   },
   {
     freezeTableName: true,
-    underscored: true,
+    // underscored: true,
     timestamps: false,
-  }
+  } ,
+
 );
 
-// PlaceOrder.removeAttribute("id");
+PlaceOrder.belongsTo(Offer) ;
+Offer.hasMany(PlaceOrder) ; 
+
 
 module.exports = { PlaceOrder };
