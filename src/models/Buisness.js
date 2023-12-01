@@ -48,12 +48,8 @@ const Buisness = sequelize.define(
 );
 
 // // Buisness offer association 
-// Buisness.hasMany(Offer,{
-// });
-// Offer.belongsTo(Buisness, {
-//   onDelete: "CASCADE",
-//   onUpdate: "NO ACTION",
-// });
+Buisness.hasMany(Offer);
+Offer.belongsTo(Buisness , {foreignKey:"BuisnessTaxRegistrationNumber"});
 
 // // buisness phone association
 // Buisness.hasMany(WorkPhone);

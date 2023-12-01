@@ -51,7 +51,7 @@ const Offer = sequelize.define(
   },
   {
     freezeTableName: true,
-    underscored: true,
+    underscored: false,
     timestamps: false,
   }
 );

@@ -12,7 +12,7 @@ const signup = async (req, res) => {
     password: req.body.password,
     location: {
       type: "Point",
-      coordinates: [req.body.location[0], req.body.location[1]],
+      coordinates: [req.body.location[0], req.body.location[1]], //lat - long
     }, //preparing for db insertion of a location of type point
     description: req.body.description,
     opening_time: req.body.opening_time,
@@ -22,7 +22,7 @@ const signup = async (req, res) => {
 
   try {
     const inserted_buisness = await Buisness.create(signup_object);
-    phonesToObjs = req.body.work_phones.map((phone) => ({
+    const phonesToObjs = req.body.work_phones.map((phone) => ({
       BuisnessTaxRegistrationNumber: req.body.tax_registration_number,
       phone_number: phone,
     }));

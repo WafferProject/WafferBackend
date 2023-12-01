@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { PlaceOrder } = require("../models/PlaceOrder");
 const { Offer } = require("../models/Offer");
 const { sequelize, QueryTypes } = require("../config/db_config");
+const { Buisness } = require("../models/Buisness");
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -130,32 +131,28 @@ const addOrder = async (req, res) => {
   }
 };
 
-const getOrders = async (req , res)=>{
-
-  const {email} = req.body;
-try{
-const orders = await PlaceOrder.findAll({where: {consumer_email:email},include:Consumer})
-return res.status(200).json({msg:"orders retrieved", result:orders});
-
-}
-catch (error){
-  console.log(error);
-  return res.status(500).send(error);
-}
-
-
-}
+const getOrders = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const orders = await PlaceOrder.findAll({
+      where: { consumer_email: email },
+      include: Consumer,
+    });
+    return res.status(200).json({ msg: "orders retrieved", result: orders });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send(error);
+  }
+};
 const getOffers = async (req, res) => {
   try {
-    let filterCriteria = {};
-
+    let filterCriteria = { include:Buisness};
 
     // Check if a category is specified in the query
     if (req.query.category) {
       console.log(req.query.category);
       filterCriteria.where = { category: req.query.category };
     }
-    
 
     // Check if orderby parameter is specified in the query
     if (req.query.date || req.query.price) {
@@ -177,15 +174,22 @@ const getOffers = async (req, res) => {
     }
 
     // Fetch products based on filter criteria
-    const offers = await Offer.findAll(
-      filterCriteria
-    );
-
-    return res.status(200).json(offers);
+    const offers = await Offer.findAll(filterCriteria );
+    console.log("offers retrieved success");
+    console.log("==============");
+    console.log(offers);
+    return res.status(200).json({ offers });
   } catch (error) {
     console.log(error);
     return res.status(500).send(error);
   }
 };
 
-module.exports = { signup, login, addOrder, updateProfile , getOffers , getOrders };
+module.exports = {
+  signup,
+  login,
+  addOrder,
+  updateProfile,
+  getOffers,
+  getOrders,
+};
