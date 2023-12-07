@@ -51,12 +51,11 @@ const Buisness = sequelize.define(
 Buisness.hasMany(Offer);
 Offer.belongsTo(Buisness , {foreignKey:"BuisnessTaxRegistrationNumber"});
 
-// // buisness phone association
-// Buisness.hasMany(WorkPhone);
-// WorkPhone.belongsTo(Buisness, {
-//   onDelete: "CASCADE",
-//   onUpdate: "NO ACTION",
-// });
+// buisness phone association
+Buisness.hasMany(WorkPhone);
+WorkPhone.belongsTo(Buisness, {
+  foreignKey:"BuisnessTaxRegistrationNumber"
+});
 
 
 

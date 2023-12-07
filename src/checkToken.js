@@ -22,11 +22,11 @@ const checkJwtToken = function (req, res, next) {
 
       // If token is validated and the request is for login or signup, redirect to the home page
       if (isLoginOrSignup) {
-        console.log("valid token redicrect ");
+        console.log("valid token redicrect  " );
         return res.status(303).json({
           msg: "JWT token validated, redirect to the home page",
-          // to handle both buisness and consumer
-          payload: decoded.email || decoded.tax_registration_number
+          // // to handle both buisness and consumer
+          // payload: decoded.email || decoded.tax_registration_number
         });
       }
       console.log("Valid token: ");

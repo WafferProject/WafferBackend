@@ -21,7 +21,7 @@ const WorkPhone = sequelize.define(
   },
   {
     freezeTableName: true,
-    underscored: true,
+    // underscored: true,
     timestamps: false,
   }
 );

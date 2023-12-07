@@ -68,13 +68,30 @@ const login = async (req, res) => {
       { tax_registration_number: buisness.tax_registration_number },
       process.env.SECRET
     );
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token);
     console.log("==================");
     return res.status(200).send("successful login ");
   } catch (error) {
     //db error
     console.log(error);
 
+    return res.status(500).json({ error: error });
+  }
+};
+
+const getBuisnessProfile = async (req, res) => {
+  const { tax_registration_number } = req.body;
+
+  try {
+    //check tax rn  and password
+    const buisness = await Buisness.findByPk(tax_registration_number);
+
+   
+    console.log("==================");
+    return res.status(200).json({Buisness:buisness});
+  } catch (error) {
+    //db error
+    console.log(error);
     return res.status(500).json({ error: error });
   }
 };
@@ -232,5 +249,6 @@ module.exports = {
   getPostedOffers,
   deleteOffer,
   updateProfile,
-  updateOffer
+  updateOffer,
+  getBuisnessProfile
 };

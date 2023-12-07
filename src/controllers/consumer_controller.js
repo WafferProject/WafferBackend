@@ -4,6 +4,7 @@ const { PlaceOrder } = require("../models/PlaceOrder");
 const { Offer } = require("../models/Offer");
 const { sequelize, QueryTypes } = require("../config/db_config");
 const { Buisness } = require("../models/Buisness");
+const { WorkPhone } = require("../models/WorkPhone");
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -52,7 +53,7 @@ const login = async (req, res) => {
 
     const token = jwt.sign({ email: consumer.email }, process.env.SECRET);
 
-    res.cookie("token", token, { httpOnly: true });
+    res.cookie("token", token);
     console.log("==================");
 
     return res.status(200).send("successful login ");
@@ -146,7 +147,9 @@ const getOrders = async (req, res) => {
 };
 const getOffers = async (req, res) => {
   try {
-    let filterCriteria = { include:Buisness};
+    let filterCriteria = { include:[{ model: Buisness,
+      include: WorkPhone,
+      attributes: [ 'email', 'location', 'name', 'opening_time', 'closing_time', 'description']}]};
 
     // Check if a category is specified in the query
     if (req.query.category) {
