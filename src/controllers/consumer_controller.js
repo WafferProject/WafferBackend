@@ -49,11 +49,15 @@ const login = async (req, res) => {
     }
 
     // user authenticated , generate jwt
-    console.log(consumer.toJSON());
+
 
     const token = jwt.sign({ email: consumer.email }, process.env.SECRET);
 
     res.cookie("token", token);
+    res.cookie(
+      "user",
+      JSON.stringify({ ...consumer.dataValues, type: "consumer" })
+    );
     console.log("==================");
 
     return res.status(200).send("successful login ");
@@ -62,6 +66,9 @@ const login = async (req, res) => {
     return res.status(500).json({ error: error });
   }
 };
+
+
+// to add get Profile
 
 const updateProfile = async (req, res) => {
   const { email } = req.body;
@@ -90,13 +97,16 @@ const addOrder = async (req, res) => {
       where: { id: req.body.offer_id, status: 1 },
     });
     if (!ordered_offer) {
+      console.log("no offer or no valid status");
+
       return res.status(404).json({
         msg: "offer not found , it may be deleted or expired",
       });
     }
     if (ordered_offer.dataValues.quantity < req.body.quantity) {
       //if ordered quantity is bigger  then what's available
-      return res.status(404).json({
+      console.log("not enough remaining quantity");
+      return res.status(400).json({
         msg: "not enough remaining quantity",
       });
     }
@@ -116,15 +126,11 @@ const addOrder = async (req, res) => {
       },
     });
 
-    console.log(
-      "order added successfully and quantity minused " +
-        JSON.stringify({ inserted_order, ordered_offer })
-    );
+    console.log("order added successfully and quantity minused ");
 
     console.log("==================");
     return res.status(200).json({
       msg: " order placed successfully and offer updated",
-      result: inserted_order.toJSON(),
     });
   } catch (error) {
     console.log(error);
@@ -136,10 +142,12 @@ const getOrders = async (req, res) => {
   const { email } = req.body;
   try {
     const orders = await PlaceOrder.findAll({
-      where: { consumer_email: email },
-      include: Consumer,
+      where: { consumer_email: email, status:1},
+      include: Offer,
     });
-    return res.status(200).json({ msg: "orders retrieved", result: orders });
+    console.log("orders retrieved success");
+    console.log("============");
+    return res.status(200).json({ msg: "orders retrieved", orders: orders });
   } catch (error) {
     console.log(error);
     return res.status(500).send(error);
@@ -147,14 +155,30 @@ const getOrders = async (req, res) => {
 };
 const getOffers = async (req, res) => {
   try {
-    let filterCriteria = { include:[{ model: Buisness,
-      include: WorkPhone,
-      attributes: [ 'email', 'location', 'name', 'opening_time', 'closing_time', 'description']}]};
+    let filterCriteria = {
+      include: [
+        {
+          model: Buisness,
+          include: WorkPhone,
+          attributes: [
+            "email",
+            "location",
+            "name",
+            "opening_time",
+            "closing_time",
+            "description",
+          ],
+        },
+      ],
+      where: { status: 1 },
+    };
 
     // Check if a category is specified in the query
-    if (req.query.category) {
-      console.log(req.query.category);
-      filterCriteria.where = { category: req.query.category };
+    if (req.query.category&&req.query.category!=="all") {
+      filterCriteria.where = {
+        ...filterCriteria.where,
+        category: req.query.category,
+      };
     }
 
     // Check if orderby parameter is specified in the query
@@ -177,10 +201,10 @@ const getOffers = async (req, res) => {
     }
 
     // Fetch products based on filter criteria
-    const offers = await Offer.findAll(filterCriteria );
+    console.log(filterCriteria);
+    const offers = await Offer.findAll(filterCriteria);
     console.log("offers retrieved success");
     console.log("==============");
-    console.log(offers);
     return res.status(200).json({ offers });
   } catch (error) {
     console.log(error);

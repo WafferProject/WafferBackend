@@ -62,13 +62,18 @@ const login = async (req, res) => {
       return res.status(401).send("wrong identifier or password");
     }
     // buisness authenticated , generate jwt
-    console.log(buisness.toJSON());
 
     const token = jwt.sign(
       { tax_registration_number: buisness.tax_registration_number },
       process.env.SECRET
     );
     res.cookie("token", token);
+
+    res.cookie(
+      "user",
+      JSON.stringify({ ...buisness.dataValues, type: "business" })
+    );
+
     console.log("==================");
     return res.status(200).send("successful login ");
   } catch (error) {
@@ -86,9 +91,8 @@ const getBuisnessProfile = async (req, res) => {
     //check tax rn  and password
     const buisness = await Buisness.findByPk(tax_registration_number);
 
-   
     console.log("==================");
-    return res.status(200).json({Buisness:buisness});
+    return res.status(200).json({ Buisness: buisness });
   } catch (error) {
     //db error
     console.log(error);
@@ -108,12 +112,12 @@ const updateProfile = async (req, res) => {
         JSON.stringify(updated_buisness)
     );
     console.log("=================");
-   return  res.status(200).json({
+    return res.status(200).json({
       msg: "buisness profile updated successfully",
     });
   } catch (err) {
     console.log(err);
-   return  res.status(500).json({ err: err });
+    return res.status(500).json({ err: err });
   }
 };
 
@@ -241,6 +245,25 @@ const deleteOffer = async (req, res) => {
     return res.status(500).json({ err });
   }
 };
+const getScannedOrder = async (req, res) => {
+  const { tax_registration_number } = req.body;
+  try {
+    const scanned_order = await PlaceOrder.findOne({
+      where: {
+        tax_registration_number: tax_registration_number, // Specify the buisness that posted the offer
+        id: req.params.order_id,
+      },
+    });
+    console.log("retrieved scanned order ");
+    console.log("==================");
+
+    return res.status(200).json({ result: scanned_order });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({ error });
+  }
+};
 
 module.exports = {
   signup,
@@ -250,5 +273,6 @@ module.exports = {
   deleteOffer,
   updateProfile,
   updateOffer,
-  getBuisnessProfile
+  getBuisnessProfile,
+  getScannedOrder,
 };
