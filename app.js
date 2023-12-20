@@ -25,9 +25,10 @@ app.use(cookieParser());
 app.use(checkJwtToken);
 app.use("/api/consumer/", consumer_router);
 app.use("/api/buisness/", buisness_router);
-
+//when client has an auth token he should pass it by the check token before allowing access incase its compromised 
 app.all("/api", (req, res) => {
-  res.send("hello , homepage");
+  console.log("confirmed token check");
+  res.sendStatus(200);
 });
 
 const server = app.listen(port, () => {

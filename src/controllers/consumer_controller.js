@@ -50,14 +50,16 @@ const login = async (req, res) => {
 
     // user authenticated , generate jwt
 
-
     const token = jwt.sign({ email: consumer.email }, process.env.SECRET);
 
     res.cookie("token", token);
-    res.cookie(
-      "user",
-      JSON.stringify({ ...consumer.dataValues, type: "consumer" })
-    );
+    const consumerCookie = JSON.stringify({
+      first_name: consumer.dataValues.first_name,
+      last_name: consumer.dataValues.last_name,
+      email: consumer.dataValues.email,
+      type: "consumer",
+    });
+    res.cookie("user", consumerCookie);
     console.log("==================");
 
     return res.status(200).send("successful login ");
@@ -66,7 +68,6 @@ const login = async (req, res) => {
     return res.status(500).json({ error: error });
   }
 };
-
 
 // to add get Profile
 
@@ -142,7 +143,7 @@ const getOrders = async (req, res) => {
   const { email } = req.body;
   try {
     const orders = await PlaceOrder.findAll({
-      where: { consumer_email: email, status:1},
+      where: { consumer_email: email, status: 1 },
       include: Offer,
     });
     console.log("orders retrieved success");
@@ -174,7 +175,7 @@ const getOffers = async (req, res) => {
     };
 
     // Check if a category is specified in the query
-    if (req.query.category&&req.query.category!=="all") {
+    if (req.query.category && req.query.category !== "all") {
       filterCriteria.where = {
         ...filterCriteria.where,
         category: req.query.category,

@@ -16,7 +16,7 @@ const checkJwtToken = function (req, res, next) {
   if (jwttoken) {
     jwt.verify(jwttoken, process.env.SECRET, (err, decoded) => {
       if (err) {
-        console.log("JWT verification error:", err);
+        console.log("JWT verification error:");
         return res.status(401).json({ error: "Invalid token" });
       }
 

@@ -3,6 +3,8 @@ const { Offer } = require("../models/Offer");
 const jwt = require("jsonwebtoken");
 const { WorkPhone } = require("../models/WorkPhone");
 const { PlaceOrder } = require("../models/PlaceOrder");
+const { Consumer } = require("../models/Consumer");
+
 
 const signup = async (req, res) => {
   console.log("signup request received ");
@@ -68,10 +70,14 @@ const login = async (req, res) => {
       process.env.SECRET
     );
     res.cookie("token", token);
-
+    const buisnessCookie = JSON.stringify({
+      name: buisness.dataValues.name,
+      email: buisness.dataValues.email,
+      type:"business"
+    });
     res.cookie(
       "user",
-      JSON.stringify({ ...buisness.dataValues, type: "business" })
+     buisnessCookie
     );
 
     console.log("==================");
@@ -195,10 +201,20 @@ const getPostedOffers = async (req, res) => {
     const posted_offers = await Offer.findAll({
       where: {
         tax_registration_number: tax_registration_number, // Specify the buisness that posted the offer
-        status: 1,
+        // status: 1,
       },
-      include: PlaceOrder, // retrieve the orders related to the offer
-    });
+      include: [
+        {
+          model: PlaceOrder,
+          attributes:["quantity", "status", "creation_date","id"],
+          include: [
+            {
+              model: Consumer,
+              attributes: ['first_name', 'last_name'], // Specify the attributes you want to include
+            },
+          ],
+        },
+      ],  });
     console.log("return posted offers ");
     console.log("==================");
 
